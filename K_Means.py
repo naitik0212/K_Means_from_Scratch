@@ -1,6 +1,7 @@
 from pprint import pprint
 from math import sqrt, floor
 import numpy as np
+import operator
 
 
 def initial_centroids(k, data):
@@ -28,17 +29,34 @@ def euclidean_distance(a, b):
     return np.sqrt(np.sum(temp))
 
 
-def measure_distance(data, centroid):
-    # distance = []
+def assign_cluster(distance):
+    return max(distance.items(), key=operator.itemgetter(1))[0]
 
+
+def measure_distance(data, centroid):
+    # count1 = 0
+    # count2 = 0
     for i in range(len(data)):
+        distance = {}
         for j in range(len(centroid)):
             # pprint(data[i])
             # pprint(centroid[j])
             A = np.squeeze(np.asarray(centroid[j]))
-            print(A)
-            distance = euclidean_distance(data[i], A)
+            # print(A)
+            distance[j] = euclidean_distance(data[i], A)
             print(distance)
+        a = assign_cluster(distance)
+        print(a)
+
+    #     if a == 0:
+    #         count1 = count1 + 1
+    #     else:
+    #         count2 = count2 + 1
+    #
+    # print(count1)
+    # print(count2)
+
+
     pass
 
 
@@ -47,7 +65,7 @@ def main():
     # pprint(data)
     k = [2, 3, 4, 5, 6, 7, 8]
 
-    for i in range(1):
+    for i in range(7):
         print(k[i])
         centroid = initial_centroids(k[i], data)
         measure_distance(data, centroid)
