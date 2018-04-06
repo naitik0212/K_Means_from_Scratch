@@ -36,7 +36,7 @@ def measure_distance(data, centroid):
             # pprint(data[i])
             # pprint(centroid[j])
             A = np.squeeze(np.asarray(centroid[j]))
-            # print(A)
+            print(A)
             distance = euclidean_distance(data[i], A)
             print(distance)
     pass
