@@ -30,12 +30,13 @@ def euclidean_distance(a, b):
 
 
 def assign_cluster(distance):
-    return max(distance.items(), key=operator.itemgetter(1))[0]
+    return min(distance.items(), key=operator.itemgetter(1))[0]
 
 
 def measure_distance(data, centroid):
     # count1 = 0
     # count2 = 0
+    assign_centroid = {}
     for i in range(len(data)):
         distance = {}
         for j in range(len(centroid)):
@@ -44,9 +45,21 @@ def measure_distance(data, centroid):
             A = np.squeeze(np.asarray(centroid[j]))
             # print(A)
             distance[j] = euclidean_distance(data[i], A)
-            print(distance)
+            # print(distance)
         a = assign_cluster(distance)
-        print(a)
+        # print(a)
+
+        assign_centroid.setdefault(a, []).append(data[i])
+
+    print({k: sum(v)/len(v) for k, v in assign_centroid.items()})
+
+
+    # print(type(assign_centroid))
+    #
+    # m = np.asmatrix(assign_centroid)
+    # pprint(m)
+    #     assign_centroid = data[i]
+    #     print(assign_centroid)
 
     #     if a == 0:
     #         count1 = count1 + 1
@@ -65,11 +78,12 @@ def main():
     # pprint(data)
     k = [2, 3, 4, 5, 6, 7, 8]
 
+
     for i in range(7):
         print(k[i])
         centroid = initial_centroids(k[i], data)
         measure_distance(data, centroid)
-        print(centroid)
+        # print(centroid)
 
 
 if __name__ == "__main__" :
