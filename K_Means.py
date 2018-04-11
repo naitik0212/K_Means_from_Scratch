@@ -1,5 +1,6 @@
 from pprint import pprint
 from math import sqrt, floor
+
 import numpy as np
 import operator
 
@@ -33,9 +34,16 @@ def assign_cluster(distance):
     return min(distance.items(), key=operator.itemgetter(1))[0]
 
 
-def measure_distance(data, centroid):
+def find(assign_centroid):
+    return {k: sum(v) / len(v) for k, v in assign_centroid.items()}
+    pass
+
+
+def measure_distance(data, centroid,k):
     # count1 = 0
     # count2 = 0
+    # assigned_cluster = [[[] for i in range(k)]]
+
     assign_centroid = {}
     for i in range(len(data)):
         distance = {}
@@ -50,8 +58,11 @@ def measure_distance(data, centroid):
         # print(a)
 
         assign_centroid.setdefault(a, []).append(data[i])
+        # assigned_cluster[a-1] = assign_centroid
+        # print(assign_centroid)
+    new_centroid = find(assign_centroid)
 
-    print({k: sum(v)/len(v) for k, v in assign_centroid.items()})
+
 
 
     # print(type(assign_centroid))
@@ -68,9 +79,55 @@ def measure_distance(data, centroid):
     #
     # print(count1)
     # print(count2)
+    return new_centroid
 
 
-    pass
+# def compareCentroid(previous_centroid, new_centroid):
+#     # print("hi")
+#     print(previous_centroid)
+#     # print(len(previous_centroid))
+#     print(new_centroid)
+#     # print(len(new_centroid))
+#     # for key, value in previous_centroid:
+#     #     if key in new_centroid.items():
+#     for key in previous_centroid.keys() & new_centroid.keys():
+#         print("hello")
+#         return False
+#     return True
+
+def compareCentroid(previous_centroid, new_centroid):
+    # print(previous_centroid)
+    # print(new_centroid)
+
+    # print("HOLAaaa")
+    # print(set(new_centroid) == set(previous_centroid))
+    for key, value in previous_centroid.items():
+        if not all(new_centroid[key] == value):
+            return False
+    return True
+
+
+def calculateCentroids(data, new_centroid, k):
+    previous_centroid = new_centroid
+    new_centroid = measure_distance(data, new_centroid, k)
+    return previous_centroid, new_centroid
+
+
+def checkCentroid(data, previous_centroid, new_centroid, k):
+    # print(previous_centroid)
+    # print(len(previous_centroid))
+    # print(new_centroid)
+    # print(len(new_centroid))
+    flag = compareCentroid(previous_centroid, new_centroid)
+    while True:
+        # print(flag)
+        if flag == False:
+            previous_centroid, new_centroid = calculateCentroids(data, new_centroid, k)
+            flag = compareCentroid(previous_centroid, new_centroid)
+        else:
+            break
+    print(previous_centroid)
+    return new_centroid
 
 
 def main():
@@ -82,8 +139,18 @@ def main():
     for i in range(7):
         print(k[i])
         centroid = initial_centroids(k[i], data)
-        measure_distance(data, centroid)
-        # print(centroid)
+        # print(data)
+        previous_centroid = measure_distance(data, centroid, k[i])
+        # print(previous_centroid)
+        new_centroid = measure_distance(data, previous_centroid,k[i])
+        # print(new_centroid)
+        # print(new_centroid)
+        final_centroid = checkCentroid(data, previous_centroid,new_centroid,k[i])
+        print(final_centroid)
+
+
+        # while(checkCentroid(data,previous_centroid,k[i])):
+        #     continue
 
 
 if __name__ == "__main__" :
