@@ -126,7 +126,7 @@ def checkCentroid(data, previous_centroid, new_centroid, k):
             flag = compareCentroid(previous_centroid, new_centroid)
         else:
             break
-    print(previous_centroid)
+    pprint(previous_centroid)
     return new_centroid
 
 
@@ -146,7 +146,10 @@ def main():
         # print(new_centroid)
         # print(new_centroid)
         final_centroid = checkCentroid(data, previous_centroid,new_centroid,k[i])
-        print(final_centroid)
+        print("final: ")
+        pprint(final_centroid)
+
+        # calculatePotentialFunction()
 
 
         # while(checkCentroid(data,previous_centroid,k[i])):
