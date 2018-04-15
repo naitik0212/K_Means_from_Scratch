@@ -39,7 +39,7 @@ def find(assign_centroid):
     pass
 
 
-def measure_distance(data, centroid,k):
+def measure_distance(data, centroid, k):
     # count1 = 0
     # count2 = 0
     # assigned_cluster = [[[] for i in range(k)]]
@@ -57,7 +57,8 @@ def measure_distance(data, centroid,k):
         a = assign_cluster(distance)
         # print(a)
 
-        assign_centroid.setdefault(a, []).append(data[i])
+        revised_data = assign_centroid.setdefault(a, []).append(data[i])
+        # print(assign_centroid)
         # assigned_cluster[a-1] = assign_centroid
         # print(assign_centroid)
     new_centroid = find(assign_centroid)
@@ -79,7 +80,7 @@ def measure_distance(data, centroid,k):
     #
     # print(count1)
     # print(count2)
-    return new_centroid
+    return new_centroid, assign_centroid
 
 
 # def compareCentroid(previous_centroid, new_centroid):
@@ -109,7 +110,7 @@ def compareCentroid(previous_centroid, new_centroid):
 
 def calculateCentroids(data, new_centroid, k):
     previous_centroid = new_centroid
-    new_centroid = measure_distance(data, new_centroid, k)
+    new_centroid, revised_data = measure_distance(data, new_centroid, k)
     return previous_centroid, new_centroid
 
 
@@ -130,26 +131,43 @@ def checkCentroid(data, previous_centroid, new_centroid, k):
     return new_centroid
 
 
+def calculatePotentialFunction(k, final_centroid, revised_data):
+    potentialFunction = 0
+
+    for i in range(k):
+        for j in revised_data[i]:
+            z=0
+            z = final_centroid[i] - j
+            z = np.linalg.norm(z)
+            z = z * z
+            potentialFunction += z
+
+    print(potentialFunction)
+    pass
+
+
 def main():
     data = np.loadtxt("breast_cancer_data.txt", usecols=(1, 2, 3, 4, 5, 6, 7, 8, 9), delimiter=",")
     # pprint(data)
     k = [2, 3, 4, 5, 6, 7, 8]
 
-
     for i in range(7):
         print(k[i])
         centroid = initial_centroids(k[i], data)
         # print(data)
-        previous_centroid = measure_distance(data, centroid, k[i])
+        previous_centroid,revised_data = measure_distance(data, centroid, k[i])
         # print(previous_centroid)
-        new_centroid = measure_distance(data, previous_centroid,k[i])
+        new_centroid, revised_data = measure_distance(data, previous_centroid,k[i])
         # print(new_centroid)
         # print(new_centroid)
-        final_centroid = checkCentroid(data, previous_centroid,new_centroid,k[i])
+        final_centroid = checkCentroid(data, previous_centroid, new_centroid,k[i])
         print("final: ")
         pprint(final_centroid)
+        # pprint(revised_data)
 
-        # calculatePotentialFunction()
+        potentialfunction = calculatePotentialFunction(k[i], final_centroid, revised_data)
+
+    # print(potentialfunction)
 
 
         # while(checkCentroid(data,previous_centroid,k[i])):
