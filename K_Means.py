@@ -3,6 +3,8 @@ from math import sqrt, floor
 
 import numpy as np
 import operator
+import matplotlib.pyplot as plt
+
 
 
 def initial_centroids(k, data):
@@ -35,6 +37,9 @@ def assign_cluster(distance):
 
 
 def find(assign_centroid):
+    for k, v in assign_centroid.items():
+        if not (len(v)>0):
+            print(len(v))
     return {k: sum(v) / len(v) for k, v in assign_centroid.items()}
     pass
 
@@ -50,15 +55,13 @@ def measure_distance(data, centroid, k):
         for j in range(len(centroid)):
             # pprint(data[i])
             # pprint(centroid[j])
-            A = np.squeeze(np.asarray(centroid[j]))
-            # print(A)
+            if (len(np.asarray(centroid[j]))) > 0:
+                A = np.squeeze(np.asarray(centroid[j]))
             distance[j] = euclidean_distance(data[i], A)
             # print(distance)
         a = assign_cluster(distance)
         # print(a)
-
-        revised_data = assign_centroid.setdefault(a, []).append(data[i])
-        # print(assign_centroid)
+        assign_centroid.setdefault(a, []).append(data[i])
         # assigned_cluster[a-1] = assign_centroid
         # print(assign_centroid)
     new_centroid = find(assign_centroid)
@@ -136,21 +139,31 @@ def calculatePotentialFunction(k, final_centroid, revised_data):
 
     for i in range(k):
         for j in revised_data[i]:
-            z=0
+            z = 0
             z = final_centroid[i] - j
             z = np.linalg.norm(z)
             z = z * z
             potentialFunction += z
 
-    print(potentialFunction)
-    pass
+    # print(potentialFunction)
+    return potentialFunction
+
+
+def graphPlot(graph,k):
+    plt.plot(graph, 'bs-', label="K-Means")
+    xdatapoints=[i for i in range(0, len(k))]
+    plt.ylabel('Potential Function')
+    plt.xlabel('Value of K')
+    plt.xticks(xdatapoints,k)
+    plt.legend()
+    plt.show()
 
 
 def main():
     data = np.loadtxt("breast_cancer_data.txt", usecols=(1, 2, 3, 4, 5, 6, 7, 8, 9), delimiter=",")
     # pprint(data)
     k = [2, 3, 4, 5, 6, 7, 8]
-
+    potentialfunction = []
     for i in range(7):
         print(k[i])
         centroid = initial_centroids(k[i], data)
@@ -161,13 +174,15 @@ def main():
         # print(new_centroid)
         # print(new_centroid)
         final_centroid = checkCentroid(data, previous_centroid, new_centroid,k[i])
-        print("final: ")
-        pprint(final_centroid)
-        # pprint(revised_data)
+        final_centroid_ans, revised_data = measure_distance(data, final_centroid, k[i])
+        print("final")
+        pprint(final_centroid_ans)
+        # pprint(len(revised_data[0]))
+        potentialfunction.append(calculatePotentialFunction(k[i], final_centroid_ans, revised_data))
 
-        potentialfunction = calculatePotentialFunction(k[i], final_centroid, revised_data)
+    print(potentialfunction)
+    graphPlot(potentialfunction, k)
 
-    # print(potentialfunction)
 
 
         # while(checkCentroid(data,previous_centroid,k[i])):
