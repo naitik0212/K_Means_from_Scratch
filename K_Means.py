@@ -1,10 +1,8 @@
 from pprint import pprint
 from math import sqrt, floor
-
 import numpy as np
 import operator
 import matplotlib.pyplot as plt
-
 
 
 def initial_centroids(k, data):
@@ -19,7 +17,7 @@ def initial_centroids(k, data):
     for j in range(n):
         min_centroid = min(data[:, j])
         max_centroid = max(data[:, j])
-        range_centroid = float(max_centroid - min_centroid)
+        range_centroid = float(max_centroid - min_centroid*1.2)
         centroids[:, j] = min_centroid + range_centroid * np.random.rand(k, 1)
 
     # pprint(centroids)
@@ -40,14 +38,31 @@ def find(assign_centroid):
     for k, v in assign_centroid.items():
         if not (len(v)>0):
             print(len(v))
+            pass
     return {k: sum(v) / len(v) for k, v in assign_centroid.items()}
     pass
 
 
+def splitLargest(assign_centroid,list):
+    for i in list:
+        max_index = -1
+        max_length = -1
+        for cluster in assign_centroid:
+            if(len(assign_centroid(cluster))>max_length):
+                max_index = cluster
+                max_length = len(assign_centroid(cluster))
+        # print(max_length,max_index)
+        temp = assign_centroid[max_index]
+        del assign_centroid[max_index]
+        checkpoint = len(temp)/2
+        assign_centroid[i]=temp[:checkpoint]
+        assign_centroid[max_index]=temp[checkpoint:]
+        # print(type(temp))
+    return assign_centroid
+    pass
+
+
 def measure_distance(data, centroid, k):
-    # count1 = 0
-    # count2 = 0
-    # assigned_cluster = [[[] for i in range(k)]]
 
     assign_centroid = {}
     for i in range(len(data)):
@@ -55,56 +70,58 @@ def measure_distance(data, centroid, k):
         for j in range(len(centroid)):
             # pprint(data[i])
             # pprint(centroid[j])
-            if (len(np.asarray(centroid[j]))) > 0:
-                A = np.squeeze(np.asarray(centroid[j]))
+            # print(len(np.asarray(centroid[j])))
+            A = np.squeeze(np.asarray(centroid[j]))
+            # print(type(centroid[j]),np.shape(centroid[j]))
+            # print(type(data[i]),np.shape(data[i]))
             distance[j] = euclidean_distance(data[i], A)
             # print(distance)
         a = assign_cluster(distance)
         # print(a)
+
         assign_centroid.setdefault(a, []).append(data[i])
-        # assigned_cluster[a-1] = assign_centroid
-        # print(assign_centroid)
+
+    # print(assign_centroid)
+    list = []
+    for cluster in assign_centroid:
+        # print(len(assign_centroid[cluster]))
+        # print(len(assign_centroid[i]))
+        # print(all(assign_centroid[i]))
+        if(len(assign_centroid[cluster])==0):
+            list.append(cluster)
+            del assign_centroid[cluster]
+
+    if(len(list)>0):
+        splitLargest(assign_centroid,list)
+
+
+
+    # list_length = [0 in range(k)]
+    #
+    # for i in range(k):
+    #     # print(max(list_length))
+    #     if(len(assign_centroid[i]))==0 :
+    #         assign_centroid[i] = assign_centroid[list_length.index(max(list_length))]
+    #     list_length.append(len(assign_centroid[i]))
+
+    # for i in range(k):
+    #     if(min(list_length)==0):
+    #         assign_centroid[i] = assign_centroid[list_length.index(max(list_length))]
+    #
+    # print(list_length)
+    # print(list_length.index(max(list_length)))
+
+    # if len(list_length[i])!= 0:
+        #     pass
+        # else:
+        #     assign_centroid[i] = assign_centroid[i-1]
     new_centroid = find(assign_centroid)
 
-
-
-
-    # print(type(assign_centroid))
-    #
-    # m = np.asmatrix(assign_centroid)
-    # pprint(m)
-    #     assign_centroid = data[i]
-    #     print(assign_centroid)
-
-    #     if a == 0:
-    #         count1 = count1 + 1
-    #     else:
-    #         count2 = count2 + 1
-    #
-    # print(count1)
-    # print(count2)
     return new_centroid, assign_centroid
 
 
-# def compareCentroid(previous_centroid, new_centroid):
-#     # print("hi")
-#     print(previous_centroid)
-#     # print(len(previous_centroid))
-#     print(new_centroid)
-#     # print(len(new_centroid))
-#     # for key, value in previous_centroid:
-#     #     if key in new_centroid.items():
-#     for key in previous_centroid.keys() & new_centroid.keys():
-#         print("hello")
-#         return False
-#     return True
-
 def compareCentroid(previous_centroid, new_centroid):
-    # print(previous_centroid)
-    # print(new_centroid)
 
-    # print("HOLAaaa")
-    # print(set(new_centroid) == set(previous_centroid))
     for key, value in previous_centroid.items():
         if not all(new_centroid[key] == value):
             return False
@@ -118,19 +135,15 @@ def calculateCentroids(data, new_centroid, k):
 
 
 def checkCentroid(data, previous_centroid, new_centroid, k):
-    # print(previous_centroid)
-    # print(len(previous_centroid))
-    # print(new_centroid)
-    # print(len(new_centroid))
+
     flag = compareCentroid(previous_centroid, new_centroid)
     while True:
-        # print(flag)
         if flag == False:
             previous_centroid, new_centroid = calculateCentroids(data, new_centroid, k)
             flag = compareCentroid(previous_centroid, new_centroid)
         else:
             break
-    pprint(previous_centroid)
+    # pprint(previous_centroid)
     return new_centroid
 
 
@@ -154,7 +167,7 @@ def graphPlot(graph,k):
     xdatapoints=[i for i in range(0, len(k))]
     plt.ylabel('Potential Function')
     plt.xlabel('Value of K')
-    plt.xticks(xdatapoints,k)
+    plt.xticks(xdatapoints, k)
     plt.legend()
     plt.show()
 
@@ -167,26 +180,16 @@ def main():
     for i in range(7):
         print(k[i])
         centroid = initial_centroids(k[i], data)
-        # print(data)
-        previous_centroid,revised_data = measure_distance(data, centroid, k[i])
-        # print(previous_centroid)
-        new_centroid, revised_data = measure_distance(data, previous_centroid,k[i])
-        # print(new_centroid)
-        # print(new_centroid)
-        final_centroid = checkCentroid(data, previous_centroid, new_centroid,k[i])
+        previous_centroid, revised_data = measure_distance(data, centroid, k[i])
+        new_centroid, revised_data = measure_distance(data, previous_centroid, k[i])
+        final_centroid = checkCentroid(data, previous_centroid, new_centroid, k[i])
         final_centroid_ans, revised_data = measure_distance(data, final_centroid, k[i])
-        print("final")
+        # print("final")
         pprint(final_centroid_ans)
-        # pprint(len(revised_data[0]))
         potentialfunction.append(calculatePotentialFunction(k[i], final_centroid_ans, revised_data))
 
     print(potentialfunction)
     graphPlot(potentialfunction, k)
-
-
-
-        # while(checkCentroid(data,previous_centroid,k[i])):
-        #     continue
 
 
 if __name__ == "__main__" :
